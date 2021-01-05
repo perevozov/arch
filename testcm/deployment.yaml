@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testcm-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: testcm-app
+  template:
+    metadata:
+      labels:
+        app: testcm-app
+    spec:
+      containers:
+      - name: testcm
+        image: nginx
+        volumeMounts:
+        - name: app-conf
+          mountPath: /app/configfiles/database.yml
+          subPath: database.yml
+      volumes:
+        - name: app-conf
+          configMap:
+            name: testcm-config

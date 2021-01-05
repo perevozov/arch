@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hw01-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hw01-app
+  template:
+    metadata:
+      labels:
+        app: hw01-app
+    spec:
+      containers:
+      - name: hw01
+        image: perevozov/arch:1
+        ports:
+        - name: web 
+          containerPort: 8000
+        livenessProbe:
+          httpGet:
+            port: 8000
+            path: /health/
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            port: 8000
+            path: /health/
+          periodSeconds: 5

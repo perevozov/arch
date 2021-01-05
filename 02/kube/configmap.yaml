@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hw02-config
+data:
+  dbUser: hw02
+  dbHost: hw02-mysql
+  dbName: hw02

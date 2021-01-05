@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hw03-app
+  labels:
+    app: hw03-app
+spec:
+  endpoints:
+    - port: serviceport
+      scheme: http
+      path: /metrics
+      interval: 15s
+  selector:
+    matchLabels:
+      app: hw03-app

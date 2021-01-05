@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hw02.fullname" . }}
+  labels:
+    {{- include "hw02.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "hw02.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "hw02.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "hw02.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: {{ .Chart.Name }}-check-db
+          image: mysql:latest
+          env:
+            - name: MYSQL_HOST
+              value: {{ include "mysql.fullname" . | quote }}
+            - name: MYSQL_PORT
+              value: {{ .Values.mysql.service.port | quote }}
+          command:
+            - sh
+            - "-c"
+            - |
+              until mysqladmin ping -h"$MYSQL_HOST" --silent; 
+              do echo waiting for database at $MYSQL_HOST; sleep 2; done
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "perevozov/arch:2"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: http
+          env:
+            - name: HW02_DB_USER
+              valueFrom: 
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}-config
+                  key: dbUser
+            - name: HW02_DB_NAME
+              valueFrom: 
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}-config
+                  key: dbName
+            - name: HW02_DB_HOST
+              valueFrom: 
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}-config
+                  key: dbHost
+            - name: HW02_LISTEN_PORT
+              valueFrom: 
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}-config
+                  key: listenPort
+            - name: HW02_DB_PASSWD
+              valueFrom: 
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-secret
+                  key: dbPasswd
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

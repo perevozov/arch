@@ -1,0 +1,16 @@
+apiVersion: v2
+name: hw02
+description: A Helm chart for architecture homework 2
+
+type: application
+version: 0.1.0
+appVersion: 0.0.2
+
+dependencies:
+    - name: mysql
+      version: "6.*.*"
+      repository: https://charts.bitnami.com/bitnami
+      condition: mysql.enabled
+      tags:
+        - hw02-database
+  

@@ -1,0 +1,28 @@
+db:
+  user: hw03
+  name: hw03
+  password: mysql-passwd
+
+auth:
+  rootPassword: 'mysql-passwd'
+  database: hw03
+  username: hw03
+  password: 'mysql-passwd'
+
+primary:
+  fullname: hw03-mysql
+  service:
+    type: NodePort
+    port: 3306
+  persistence:
+    enabled: true
+    size: 1Gi
+
+secondary:
+  replicas: 0
+
+replication:
+  enabled: false
+
+volumePermissions:
+  enabled: true

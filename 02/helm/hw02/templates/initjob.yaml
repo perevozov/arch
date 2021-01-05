@@ -1,0 +1,79 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Chart.Name }}-initdb
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  # POD
+  template:
+    metadata:
+      name: {{ .Chart.Name }}-initdb
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: {{ .Chart.Name }}-check-init-db
+          image: mysql:latest
+          env:
+            - name: MYSQL_HOST
+              value: {{ include "mysql.fullname" . | quote }}
+            - name: MYSQL_PORT
+              value: {{ .Values.mysql.service.port | quote }}
+          command:
+            - sh
+            - "-c"
+            - |
+              until mysqladmin ping -h"$MYSQL_HOST" --silent; 
+              do echo waiting for database at $MYSQL_HOST; sleep 2; done
+      containers:
+      - name: post-install-job
+        env:
+          - name: MYSQL_PWD
+            valueFrom: 
+              secretKeyRef:
+                name: {{ .Chart.Name }}-secret
+                key: dbPasswd
+          - name: MYSQL_HOST
+            valueFrom: 
+              configMapKeyRef:
+                name: {{ .Chart.Name }}-config
+                key: dbHost
+          - name: HW02_DB_USER
+            valueFrom: 
+              configMapKeyRef:
+                name: {{ .Chart.Name }}-config
+                key: dbUser
+          - name: HW02_DB_NAME
+            valueFrom: 
+              configMapKeyRef:
+                name: {{ .Chart.Name }}-config
+                key: dbName
+    
+        image: mysql:latest
+        command:
+          - sh
+          - "-c"
+          - |
+            mysql -u $HW02_DB_USER $HW02_DB_NAME <<'EOF'
+              CREATE TABLE IF NOT EXISTS user(
+                id int not null auto_increment,
+                username varchar(256) not null,
+                first_name varchar(256) not null,
+                last_name varchar(256) not null,
+                email varchar(256),
+                phone varchar(256),
+
+                PRIMARY KEY (id)
+              );
+            EOF
+
+  backoffLimit: 0

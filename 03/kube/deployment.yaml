@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hw03-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hw03-app
+  template:
+    metadata:
+      labels:
+        app: hw03-app
+    spec:
+      containers:
+      - name: hw03
+        image: perevozov/arch:3
+        ports:
+        - name: web 
+          containerPort: 8000
+        env:
+          - name: HW03_DB_USER
+            valueFrom: 
+              configMapKeyRef:
+                name: hw03-config
+                key: dbUser
+          - name: HW03_DB_NAME
+            valueFrom: 
+              configMapKeyRef:
+                name: hw03-config
+                key: dbName
+          - name: HW03_DB_HOST
+            valueFrom: 
+              configMapKeyRef:
+                name: hw03-config
+                key: dbHost
+          - name: HW03_DB_PASSWD
+            valueFrom: 
+              secretKeyRef:
+                name: hw03-secret
+                key: dbPasswd

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-config
+data:
+  dbUser: {{ .Values.mysql.db.user }}
+  dbHost: {{ include "mysql.fullname" . | quote }}
+  dbName: {{ .Values.mysql.db.name }}
+  listenPort: "{{ .Values.service.port }}"
