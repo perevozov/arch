@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userservice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userservice-app
+  template:
+    metadata:
+      labels:
+        app: userservice-app
+    spec:
+      containers:
+      - name: userservice
+        image: perevozov/arch:userservice
+        ports:
+        - name: web 
+          containerPort: 8000
+        env:
+          - name: DB_USER
+            valueFrom: 
+              configMapKeyRef:
+                name: userservice-config
+                key: dbUser
+          - name: DB_NAME
+            valueFrom: 
+              configMapKeyRef:
+                name: userservice-config
+                key: dbName
+          - name: DB_HOST
+            valueFrom: 
+              configMapKeyRef:
+                name: userservice-config
+                key: dbHost
+          - name: DB_PASSWD
+            valueFrom: 
+              secretKeyRef:
+                name: userservice-secret
+                key: dbPasswd

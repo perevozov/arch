@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: userservice
+  labels: 
+    app: userservice-app
+spec:
+  selector:
+    app: userservice-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      name: web
+  type: NodePort

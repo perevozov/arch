@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emailchecker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: emailchecker-app
+  template:
+    metadata:
+      labels:
+        app: emailchecker-app
+    spec:
+      containers:
+      - name: emailchecker
+        image: perevozov/arch:emailchecker
+        ports:
+        - name: web 
+          containerPort: 8000
+        

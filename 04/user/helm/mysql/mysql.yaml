@@ -1,0 +1,28 @@
+db:
+  user: userservice
+  name: userservice
+  password: mysql-passwd
+
+auth:
+  rootPassword: 'mysql-passwd'
+  database: userservice
+  username: userservice
+  password: 'mysql-passwd'
+
+primary:
+  fullname: userservice-mysql
+  service:
+    type: NodePort
+    port: 3306
+  persistence:
+    enabled: true
+    size: 1Gi
+
+secondary:
+  replicas: 0
+
+replication:
+  enabled: false
+
+volumePermissions:
+  enabled: true
