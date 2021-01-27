@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/perevozov/arch-hw03/model"
@@ -38,6 +39,17 @@ func (env *Env) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	emailCheckClient := NewEmailCheckerClient(&url.URL{Scheme: "http", Host: ServiceConfig.EmailCheckerHost})
+	emailValid, err := emailCheckClient.CheckEmail(*u.Email)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if !emailValid {
+		http.Error(w, "Provided Email is invalid", http.StatusBadRequest)
+		return
+	}
+
 	err = env.DB.WithTransaction(func() error {
 		userID, err := env.DB.AddUser(&u)
 		if err != nil {

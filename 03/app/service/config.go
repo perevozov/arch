@@ -5,11 +5,12 @@ import (
 )
 
 type Config struct {
-	DBUser     string
-	DBPasswd   string
-	DBHost     string
-	DBName     string
-	ListenPort string
+	DBUser           string
+	DBPasswd         string
+	DBHost           string
+	DBName           string
+	ListenPort       string
+	EmailCheckerHost string
 }
 
 var ServiceConfig Config
@@ -20,6 +21,7 @@ func init() {
 	ServiceConfig.DBHost = getEnv("HW03_DB_HOST", "localhost")
 	ServiceConfig.DBName = getEnv("HW03_DB_NAME", "")
 	ServiceConfig.ListenPort = getEnv("HW03_LISTEN_PORT", "80")
+	ServiceConfig.EmailCheckerHost = getEnv("EMAIL_CHECKER_HOST", "emailchecker")
 }
 
 func getEnv(name string, defaultValue string) string {
