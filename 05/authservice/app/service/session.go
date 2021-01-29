@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -39,10 +40,12 @@ func GetSession(sessionID string) *Session {
 	if !ok {
 		return nil
 	}
-	if session.Expires.After(time.Now()) {
+	if session.Expires.Before(time.Now()) {
+		log.Printf("Session %s expired\n", session.SessionID)
 		sessionsLock.Lock()
 		delete(sessions, sessionID)
 		sessionsLock.Unlock()
+		return nil
 	}
 	return &session
 }

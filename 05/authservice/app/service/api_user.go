@@ -97,6 +97,7 @@ func (env *Env) Login(w http.ResponseWriter, r *http.Request) {
 		Name:     SessionCookieName,
 		Value:    session.SessionID,
 		Expires:  session.Expires,
+		Path:     "/",
 		HttpOnly: true,
 	})
 }
@@ -104,15 +105,15 @@ func (env *Env) Login(w http.ResponseWriter, r *http.Request) {
 func (env *Env) Authorize(w http.ResponseWriter, r *http.Request) {
 	sessionCookie, err := r.Cookie(SessionCookieName)
 	if err != nil {
+		log.Printf("Error: %s\n", err)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		w.Write([]byte("Unauthorized"))
 		return
 	}
 	sessionId := sessionCookie.Value
 	session := GetSession(sessionId)
 	if session == nil {
+		log.Printf("Did not find session: %s\n", sessionId)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		w.Write([]byte("Unauthorized"))
 		return
 	}
 	user, err := env.DB.LoadUserWithId(session.UserID)
