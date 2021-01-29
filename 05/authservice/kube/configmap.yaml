@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authservice-config
+data:
+  dbUser: authservice
+  dbHost: mysql-authservice
+  dbName: authservice

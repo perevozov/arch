@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authservice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authservice-app
+  template:
+    metadata:
+      labels:
+        app: authservice-app
+    spec:
+      containers:
+      - name: authservice
+        image: perevozov/arch:authservice
+        ports:
+        - name: web 
+          containerPort: 8000
+        env:
+          - name: DB_USER
+            valueFrom: 
+              configMapKeyRef:
+                name: authservice-config
+                key: dbUser
+          - name: DB_NAME
+            valueFrom: 
+              configMapKeyRef:
+                name: authservice-config
+                key: dbName
+          - name: DB_HOST
+            valueFrom: 
+              configMapKeyRef:
+                name: authservice-config
+                key: dbHost
+          - name: DB_PASSWD
+            valueFrom: 
+              secretKeyRef:
+                name: authservice-secret
+                key: dbPasswd

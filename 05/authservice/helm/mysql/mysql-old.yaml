@@ -1,0 +1,18 @@
+db:
+  user: hw03
+  name: hw03
+  password: mysql-passwd
+replication:
+  enabled: false
+slave: 
+  replicas: 0
+service:
+  type: NodePort
+  name: hw03-mysql
+master:
+  readinessProbe:
+    enabled: false
+  livenessProbe:
+    enabled: false
+  persistence:
+    size: 1Gi

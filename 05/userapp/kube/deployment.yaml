@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userapp-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userapp-app
+  template:
+    metadata:
+      labels:
+        app: userapp-app
+    spec:
+      containers:
+      - name: userapp
+        image: perevozov/arch:userapp
+        ports:
+        - name: web 
+          containerPort: 8000
+        

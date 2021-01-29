@@ -1,0 +1,59 @@
+# Source: hello-chart/templates/initdb.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "initdb"
+spec:
+  # POD
+  template:
+    metadata:
+      name: "initdb"
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: post-install-job
+        env:
+          - name: MYSQL_PWD
+            valueFrom: 
+              secretKeyRef:
+                name: authservice-secret
+                key: dbPasswd
+          - name: MYSQL_HOST
+            valueFrom: 
+              configMapKeyRef:
+                name: authservice-config
+                key: dbHost
+          - name: DB_USER
+            valueFrom: 
+              configMapKeyRef:
+                name: authservice-config
+                key: dbUser
+          - name: DB_NAME
+            valueFrom: 
+              configMapKeyRef:
+                name: authservice-config
+                key: dbName
+    
+        image: mysql:latest
+        command:
+          - sh
+          - "-c"
+          - |
+            mysql -u $DB_USER $DB_NAME <<'EOF'
+              DROP TABLE IF EXISTS user;
+              CREATE TABLE IF NOT EXISTS user (
+                id int not null auto_increment,
+                username varchar(256) not null,
+                first_name varchar(256) not null,
+                last_name varchar(256) not null,
+                email varchar(256),
+                phone varchar(256),
+                password_hash varchar(256),
+
+                PRIMARY KEY (id),
+                UNIQUE INDEX ux_user_01(username)
+              );
+
+            EOF
+
+  backoffLimit: 2
